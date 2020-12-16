@@ -11,40 +11,45 @@ from django.contrib.auth.decorators import login_required
 
 # Create your views here.
 def signupuser(request):
-    if request.method == 'GET':
-        # When someone visits the signup page.
-        return render(request, "todo/signupuser.html", {'form': UserCreationForm})
-    else:
-        # When Someone submit the information.
-        if request.POST['password1'] == request.POST['password2']:
-            try:
-                user = User.objects.create_user(request.POST['username'], password=request.POST['password1'])
-                user.save()
-                login(request, user)
-                return redirect('currenttodos')  # Return redirect returns "Url" from name created in url.py
-            except IntegrityError:  # integrity error happens when one username matched with another existing username.
-                return render(request, "todo/signupuser.html",
-                              {'form': UserCreationForm,
-                               'error': 'Username is already been taken. Please choose a new username'})
-
+    if not request.user.is_authenticated:
+        if request.method == 'GET':
+            # When someone visits the signup page.
+            return render(request, "todo/signupuser.html", {'form': UserCreationForm})
         else:
-            # Tell the user the passwords didn't match.
-            return render(request, "todo/signupuser.html",
-                          {'form': UserCreationForm, 'error': 'Passwords did not match'})
+            # When Someone submit the information.
+            if request.POST['password1'] == request.POST['password2']:
+                try:
+                    user = User.objects.create_user(request.POST['username'], password=request.POST['password1'])
+                    user.save()
+                    login(request, user)
+                    return redirect('currenttodos')  # Return redirect returns "Url" from name created in url.py
+                except IntegrityError:  # integrity error happens when one username matched with another existing username.
+                    return render(request, "todo/signupuser.html",
+                                  {'form': UserCreationForm,
+                                   'error': 'Username is already been taken. Please choose a new username'})
 
+            else:
+                # Tell the user the passwords didn't match.
+                return render(request, "todo/signupuser.html",
+                              {'form': UserCreationForm, 'error': 'Passwords did not match'})
+    else:
+        return render(request, "todo/AuthResponse.html")
 
 def loginuser(request):
-    if request.method == 'GET':
-        # When someone visits the signup page.
-        return render(request, "todo/loginuser.html", {'form': AuthenticationForm()})
-    else:
-        user = authenticate(request, username=request.POST['username'], password=request.POST['password'])
-        if user is None:
-            return render(request, "todo/loginuser.html",
-                          {'form': AuthenticationForm(), 'error': 'Username or Password Does not exist'})
+    if not request.user.is_authenticated:
+        if request.method == 'GET':
+            # When someone visits the signup page.
+            return render(request, "todo/loginuser.html", {'form': AuthenticationForm()})
         else:
-            login(request, user)
-            return redirect('currenttodos')
+            user = authenticate(request, username=request.POST['username'], password=request.POST['password'])
+            if user is None:
+                return render(request, "todo/loginuser.html",
+                              {'form': AuthenticationForm(), 'error': 'Username or Password Does not exist'})
+            else:
+                login(request, user)
+                return redirect('currenttodos')
+    else:
+        return render(request, "todo/AuthResponse.html")
 
 
 @login_required

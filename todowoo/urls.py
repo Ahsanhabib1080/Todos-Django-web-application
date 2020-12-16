@@ -23,13 +23,13 @@ urlpatterns = [
     path('', views.home, name="home"),
 
     # Auth
-    path('signup',views.signupuser, name ="signupuser"),
+    path('signup',views.signupuser, name="signupuser"),
 
     # show current Todos
     path('current/', views.currenttodos, name="currenttodos"),
 
     #logout
-    path('logout/',views.logoutuser,name="logoutuser"),
+    path('logout/',views.logoutuser, name="logoutuser"),
 
     #login
     path('login/', views.loginuser, name="loginuser"),
